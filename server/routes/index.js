@@ -1,8 +1,11 @@
 const router = require('express').Router()
-const userRouter = require('./userRouter')
 const todoRouter = require('./todoRouter') 
+const userController = require('../controllers/userController')
+const authentication = require('../middleware/authentication')
 
-router.use('/users', userRouter)
-router.use('/todos', todoRouter)
+router.post('/register', userController.register)
+router.post('/login', userController.login)
+
+router.use('/todos', authentication, todoRouter)
 
 module.exports = router
