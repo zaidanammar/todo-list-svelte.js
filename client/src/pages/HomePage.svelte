@@ -3,9 +3,12 @@
     import { crossfade } from "svelte/transition";
     import { flip } from "svelte/animate";
     import axios from "../config/axiosInstance";
-    import { onMount } from "svelte";
+    import { onMount, afterUpdate, beforeUpdate } from "svelte";
     import App from "../App.svelte";
 
+    let showEdit = false;
+    let showAdd = false;
+    let isLoaded = false;
     let arrTodos = [];
     let todo = {
         title: "",
@@ -13,8 +16,8 @@
         due_date: "",
         status: "",
     };
-    let isLoaded = false;
 
+    let todoById = {};
     const submitTodo = (e) => {
         e.preventDefault();
         axios({
@@ -30,6 +33,22 @@
             })
             .catch((err) => console.log(err));
         todo = {};
+    };
+
+    const submitEditedTodo = (e) => {
+        e.preventDefault();
+        axios({
+            method: "PUT",
+            url: `todos/${todoById.id}`,
+            headers: {
+                access_token: localStorage.getItem("access_token"),
+            },
+            data: todoById,
+        })
+            .then(({ data }) => {
+                console.log(data, "berhasil");
+            })
+            .catch((err) => console.log(err));
     };
 
     onMount(async () => {
@@ -51,6 +70,14 @@
         }
     });
 
+    beforeUpdate(() => {
+        console.log("before update");
+    });
+
+    afterUpdate(() => {
+        console.log("after update");
+    });
+
     const removeTodo = (id) => {
         axios({
             method: "DELETE",
@@ -59,19 +86,35 @@
                 access_token: localStorage.getItem("access_token"),
             },
         })
-        .then(({data}) => {
-            console.log(data)
-        }).catch((err) => {
-            console.log(err)
-        });
+            .then(({ data }) => {
+                console.log(data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
-    const editTodo = (id) => {
-        console.log(id, "edit");
+    const getTodoById = (id) => {
+        axios({
+            method: "GET",
+            url: `todos/${id}`,
+            headers: {
+                access_token: localStorage.getItem("access_token"),
+            },
+        })
+            .then(({ data }) => {
+                todoById = data;
+                showEdit = true;
+            })
+            .catch((err) => console.log(err));
     };
 
     const patchTodo = (id) => {
         console.log(id, "patch");
+    };
+
+    const handleShowAdd = () => {
+        showAdd = true;
     };
 </script>
 
@@ -94,7 +137,7 @@
     }
 
     .left {
-        background-color:chocolate;
+        background-color: chocolate;
     }
 
     .center {
@@ -104,32 +147,77 @@
     .right {
         background-color: darkseagreen;
     }
+
+    .add-todo {
+        display: flex;
+        justify-content: end;
+        margin-top: 2%;
+    }
 </style>
 
-<div class="container">
-    <h1>Add Todo</h1>
-    <form on:submit={submitTodo}>
-        <input
-            type="text"
-            name="todo"
-            placeholder="todo"
-            bind:value={todo.title} />
-        <input
-            type="text"
-            name="desc"
-            placeholder="description"
-            bind:value={todo.description} />
-        <input type="date" bind:value={todo.due_date} />
-        <select name="status" bind:value={todo.status}>
-            <optgroup label="select">
-                <option value="todo">Todo</option>
-                <option value="doing">Doing</option>
-                <option value="done">Done</option>
-            </optgroup>
-        </select>
-        <button type="submit">Save</button>
-    </form>
-</div>
+<div class="add-todo"><button on:click={handleShowAdd}>Add Todo</button></div>
+
+{#if showAdd}
+    <div class="container">
+        <h1>Add Todo</h1>
+        <form on:submit={submitTodo}>
+            <input
+                type="text"
+                name="todo"
+                placeholder="todo"
+                bind:value={todo.title} />
+            <input
+                type="text"
+                name="desc"
+                placeholder="description"
+                bind:value={todo.description} />
+            <input type="date" bind:value={todo.due_date} />
+            <select name="status" bind:value={todo.status}>
+                <optgroup label="select">
+                    <option value="todo">Todo</option>
+                    <option value="doing">Doing</option>
+                    <option value="done">Done</option>
+                </optgroup>
+            </select>
+            <button type="submit">Save</button>
+            <button
+                on:click={() => {
+                    showAdd = false;
+                }}>Cancel</button>
+        </form>
+    </div>
+{/if}
+
+{#if showEdit}
+    <div class="container">
+        <h1>Edit Todo</h1>
+        <form on:submit={submitEditedTodo}>
+            <input
+                type="text"
+                name="todo"
+                placeholder="todo"
+                bind:value={todoById.title} />
+            <input
+                type="text"
+                name="desc"
+                placeholder="description"
+                bind:value={todoById.description} />
+            <input type="date" bind:value={todoById.due_date} />
+            <select name="status" bind:value={todoById.status}>
+                <optgroup label="select">
+                    <option value="todo">Todo</option>
+                    <option value="doing">Doing</option>
+                    <option value="done">Done</option>
+                </optgroup>
+            </select>
+            <button type="submit">Save</button>
+            <button
+                on:click={() => {
+                    showEdit = false;
+                }}>Cancel</button>
+        </form>
+    </div>
+{/if}
 
 <div class="list">
     <h1>Todo List</h1>
@@ -143,7 +231,7 @@
                         {todo.title}
                         {todo.description}
                         {todo.due_date}
-                        <button on:click={() => editTodo(todo.id)}>/</button>
+                        <button on:click={() => getTodoById(todo.id)}>/</button>
                         <button on:click={() => removeTodo(todo.id)}>x</button>
                     </label>
                 {/each}
@@ -154,7 +242,7 @@
                     <label>{todo.title}
                         {todo.description}
                         {todo.due_date}
-                        <button on:click={() => editTodo(todo.id)}>/</button>
+                        <button on:click={() => getTodoById(todo.id)}>/</button>
                         <button on:click={() => removeTodo(todo.id)}>x</button>
                     </label>
                 {/each}
@@ -165,7 +253,7 @@
                     <label>{todo.title}
                         {todo.description}
                         {todo.due_date}
-                        <button on:click={() => editTodo(todo.id)}>/</button>
+                        <button on:click={() => getTodoById(todo.id)}>/</button>
                         <button on:click={() => removeTodo(todo.id)}>x</button>
                     </label>
                 {/each}
