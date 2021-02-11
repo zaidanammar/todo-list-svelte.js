@@ -64,13 +64,10 @@
         text-align: left;
         width: 60%;
     }
-
-    .login-btn {
-        overflow: hidden;
-        white-space: nowrap;
-        margin-bottom: 1%;
-    }
     
+    h6:hover{
+        cursor: pointer;
+    }
 </style>
 
 <main>
@@ -97,7 +94,7 @@
                     id="exampleInputPassword1"
                     bind:value={user.password} />
             </div>
-            <h6 class="">Already have an account ? <button class="login-btn" on:click={handleRegister}>Register</button> here</h6>
+            <h6 class=""  on:click={handleRegister} >Already have an account ? Register here</h6>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>

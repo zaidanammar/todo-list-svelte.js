@@ -9,7 +9,7 @@
   };
 
   const handleDarkMode = () => {
-    darkMode = !darkMode
+    darkMode = !darkMode;
     window.document.body.classList.toggle("dark-mode");
   };
 </script>
@@ -43,16 +43,16 @@
         </li>
       </ul>
       {#if darkMode}
-      <button class="btn btn-outline-danger" on:click={handleDarkMode}>Light Mode</button>
+        <button class="btn btn-outline-danger" on:click={handleDarkMode}>Light
+          Mode</button>
       {:else}
-      <button class="btn btn-outline-danger" on:click={handleDarkMode}>Dark Mode</button>
+        <button class="btn btn-outline-danger" on:click={handleDarkMode}>Dark
+          Mode</button>
       {/if}
-      <form class="d-flex">
-        <button
-          class="btn btn-outline-danger"
-          type="submit"
-          on:click={logout}>Logout</button>
-      </form>
+      <button
+        class="btn btn-outline-danger"
+        type="submit"
+        on:click={() => logout()}>Logout</button>
     </div>
   </div>
 </nav>

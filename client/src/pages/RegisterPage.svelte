@@ -88,10 +88,8 @@
         color: red;
     }
 
-    .login-btn {
-        overflow: hidden;
-        white-space: nowrap;
-        margin-bottom: 1%;
+    h6:hover{
+        cursor: pointer;
     }
 </style>
 
@@ -140,7 +138,7 @@
             {#if matchPassword === false && user.rePassword} 
             <h6 class="pass-notif">your password is not match!</h6>
             {/if}
-            <h6 class="">Already have an account ? <button class="login-btn" on:click={handleLogin}>login</button> here</h6>
+            <h6 class="" on:click={handleLogin}>Already have an account ? login here</h6>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>

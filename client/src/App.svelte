@@ -20,17 +20,11 @@
 </style>
 
 <Router {url}>
-	<!-- <nav>
-		<Link to="register">Register</Link>
-		<Link to="login">Login</Link>
-		<Link to="/">Home</Link>
-	</nav> -->
-	<!-- <Navbar/> -->
 	<div class="body">
-		<Route path="/register" component={RegisterPage} />
+		<Route path="/" component={RegisterPage} />
 		<Route path="/login">
 			<LoginPage />
 		</Route>
-		<Route path="/" component={HomePage} />
+		<Route path="/home" component={HomePage} />
 	</div>
 </Router>
