@@ -43,14 +43,14 @@
         </li>
       </ul>
       {#if darkMode}
-        <button class="btn btn-outline-danger" on:click={handleDarkMode}>Light
-          Mode</button>
+        <button class="btn btn-danger btn-sm me-2" on:click={handleDarkMode}><i  class="bi bi-brightness-high-fill"></i></button>
+          
       {:else}
-        <button class="btn btn-outline-danger" on:click={handleDarkMode}>Dark
-          Mode</button>
+        <button class="btn btn-danger btn-sm me-2" on:click={handleDarkMode}> <i class="bi bi-brightness-high"></i></button>
+         
       {/if}
       <button
-        class="btn btn-outline-danger"
+        class="btn btn-danger btn-sm"
         type="submit"
         on:click={() => logout()}>Logout</button>
     </div>

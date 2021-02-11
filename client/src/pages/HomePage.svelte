@@ -89,11 +89,6 @@
             .then(({ data }) => {
                 // isLoaded = !isLoaded;
                 fetchData();
-                Swal.fire({
-                    icon: "success",
-                    title: "Congratss!",
-                    text: "Your todo has been edited",
-                });
                 showEdit = false;
             })
             .catch((err) => console.log(err));
@@ -203,7 +198,7 @@
     }
 
     .left {
-        background-color: chocolate;
+        background-color: rgb(186, 119, 231);
         width: 30%;
         min-height: 500px;
         border-radius: 3%;
@@ -232,7 +227,7 @@
     .add-todo {
         display: flex;
         justify-content: center;
-        margin: 3% 2% 2%;
+        margin: 2% 2% 2%;
     }
 
     i:hover {
@@ -291,7 +286,7 @@
         <div class="add-todo">
             <button
                 type="button"
-                class="btn btn-primary"
+                class="btn btn-secondary"
                 on:click={handleShowAdd}>
                 Add Todo</button>
         </div>

@@ -9,8 +9,8 @@
 
 <style>
 	:global(body) {
-		background-color: papayawhip;
-		color: #0084f6;
+		background-color: rgb(235, 231, 231);
+		color: #1d3040;
 		transition: background-color 0.3s
 	}
 	:global(body.dark-mode) {
@@ -21,10 +21,10 @@
 
 <Router {url}>
 	<div class="body">
-		<Route path="/" component={RegisterPage} />
+		<Route path="/register" component={RegisterPage} />
 		<Route path="/login">
 			<LoginPage />
 		</Route>
-		<Route path="/home" component={HomePage} />
+		<Route path="/" component={HomePage} />
 	</div>
 </Router>

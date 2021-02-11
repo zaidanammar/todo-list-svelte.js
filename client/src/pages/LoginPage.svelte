@@ -3,7 +3,7 @@
     import Swal from "sweetalert2";
     import { navigate } from "svelte-routing";
 
-    let pageName = "Login Page";
+    let pageName = "Login";
     let user = {
         email: "",
         password: "",
@@ -48,10 +48,9 @@
     }
 
     h1 {
-        color: #b40606;
-        text-transform: uppercase;
+        color: #1d3040;
         font-size: 4em;
-        font-weight: 400;
+        font-weight: 600;
     }
 
     @media (min-width: 640px) {
@@ -62,7 +61,7 @@
 
     .container {
         text-align: left;
-        width: 60%;
+        width: 50%;
     }
     
     h6:hover{
@@ -71,7 +70,7 @@
 </style>
 
 <main>
-    <h1>{pageName}!</h1>
+    <h1>{pageName}</h1>
 
     <div class="container">
         <form on:submit={handleLogin}>
@@ -95,7 +94,7 @@
                     bind:value={user.password} />
             </div>
             <h6 class=""  on:click={handleRegister} >Already have an account ? Register here</h6>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary mt-2">Submit</button>
         </form>
     </div>
 </main>
