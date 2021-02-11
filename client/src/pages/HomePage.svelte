@@ -3,14 +3,30 @@
     import { crossfade } from "svelte/transition";
     import { flip } from "svelte/animate";
     import axios from "../config/axiosInstance";
-    import { onMount, afterUpdate, beforeUpdate } from "svelte";
-    import App from "../App.svelte";
+    import { onMount } from "svelte";
     import Swal from "sweetalert2";
+    import Navbar from "../components/Navbar.svelte";
+    import { writable } from "svelte/store";
 
+    const [send, receive] = crossfade({
+        fallback(node, params) {
+            const style = getComputedStyle(node);
+            const transform = style.transform === "none" ? "" : style.transform;
+            return {
+                duration: 600,
+                easing: quintOut,
+                css: (t) => `
+					transform: ${transform} scale(${t});
+					opacity: ${t}
+				`,
+            };
+        },
+    });
+
+    let Todos = writable([]);
     let showEdit = false;
     let showAdd = false;
-    let isLoaded = false;
-    let arrTodos = [];
+    // let isLoaded = false;
     let todo = {
         title: "",
         description: "",
@@ -21,6 +37,7 @@
     let todoById = {};
 
     const submitTodo = (e) => {
+        e.preventDefault();
         if (todo.title && todo.due_date && todo.status && todo.due_date) {
             if (new Date(todo.due_date) < new Date()) {
                 Swal.fire({
@@ -29,7 +46,6 @@
                     text: "The date was expired!",
                 });
             } else {
-                e.preventDefault();
                 axios({
                     method: "POST",
                     url: "todos",
@@ -39,6 +55,8 @@
                     data: todo,
                 })
                     .then(({ data }) => {
+                        // isLoaded = !isLoaded;
+                        fetchData();
                         Swal.fire({
                             icon: "success",
                             title: "Congratss!",
@@ -69,6 +87,8 @@
             data: todoById,
         })
             .then(({ data }) => {
+                // isLoaded = !isLoaded;
+                fetchData();
                 Swal.fire({
                     icon: "success",
                     title: "Congratss!",
@@ -79,32 +99,25 @@
             .catch((err) => console.log(err));
     };
 
-    onMount(async () => {
-        try {
-            const todo = await axios({
-                method: "GET",
-                url: "todos",
-                headers: {
-                    access_token: localStorage.getItem("access_token"),
-                },
+    const fetchData = () => {
+        axios({
+            method: "GET",
+            url: "todos",
+            headers: {
+                access_token: localStorage.getItem("access_token"),
+            },
+        })
+            .then(({ data }) => {
+                // isLoaded = !isLoaded;
+                Todos.set(data);
+                console.log(Todos, "<<<<");
             })
-                .then(({ data }) => {
-                    arrTodos = data;
-                    isLoaded = true;
-                })
-                .catch((err) => console.log(err));
-        } catch (error) {
-            console.log(error);
-        }
+            .catch((err) => console.log(err));
+    };
+
+    onMount(() => {
+        fetchData();
     });
-
-    // beforeUpdate(() => {
-    //     console.log("before update");
-    // });
-
-    // afterUpdate(() => {
-    //     console.log("after update");
-    // });
 
     const removeTodo = (id) => {
         const swalWithBootstrapButtons = Swal.mixin({
@@ -135,6 +148,8 @@
                         },
                     })
                         .then(({ data }) => {
+                            // isLoaded = !isLoaded;
+                            fetchData();
                             swalWithBootstrapButtons.fire(
                                 "Deleted!",
                                 "Your todo has been deleted.",
@@ -172,10 +187,6 @@
             .catch((err) => console.log(err));
     };
 
-    const patchTodo = (id) => {
-        console.log(id, "patch");
-    };
-
     const handleShowAdd = () => {
         showAdd = true;
     };
@@ -186,37 +197,41 @@
         margin-bottom: 3%;
     }
 
-    .list {
-        background-color: blanchedalmond;
-        padding-bottom: 3%;
-    }
-
     .sub-list {
         display: flex;
         justify-content: space-around;
     }
 
-    #loading {
-        text-align: center;
-    }
-
     .left {
         background-color: chocolate;
         width: 30%;
+        min-height: 500px;
+        border-radius: 3%;
+        padding: 0 0.5% 2%;
+        margin-bottom: 2%;
     }
 
     .center {
         width: 30%;
+        background-color: skyblue;
+        min-height: 500px;
+        border-radius: 3%;
+        padding: 0 0.5% 2%;
+        margin-bottom: 2%;
     }
 
     .right {
         background-color: darkseagreen;
         width: 30%;
+        min-height: 500px;
+        border-radius: 3%;
+        padding: 0 0.5% 2%;
+        margin-bottom: 2%;
     }
 
     .add-todo {
         display: flex;
-        justify-content: end;
+        justify-content: center;
         margin: 3% 2% 2%;
     }
 
@@ -239,14 +254,37 @@
     .card {
         margin: 3% 2% 0;
     }
+
     h2,
     h1 {
         text-align: center;
         font-weight: 700;
         margin: 1% 0;
+        text-shadow: 2px 2px 2px rgb(145, 143, 143);
+    }
+
+    :global(body.dark-mode) h2 {
+        color: white;
+    }
+
+    :global(body.dark-mode)  h1 {
+        color: white;
+    }
+
+    :global(body.dark-mode)  h5 {
+        color: grey;
+    }
+
+    :global(body.dark-mode) p {
+        color: grey;
+    }
+
+    :global(body.dark-mode) i {
+        color: grey;
     }
 </style>
 
+<Navbar />
 <div classname="container">
     <div class="list">
         <h1>Todo List</h1>
@@ -378,107 +416,101 @@
             </div>
         {/if}
 
-        {#if isLoaded == true}
-            <div class="sub-list">
-                <div class="left">
-                    <h2>Todo</h2>
-                    {#each arrTodos.filter((e) => e.status === 'todo') as todo (todo.id)}
-                        <div class="row">
-                            <div>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row-item">
-                                            <h5 class="card-title">
-                                                {todo.title}
-                                            </h5>
-                                            <p class="card-text">
-                                                {todo.due_date}
-                                            </p>
-                                        </div>
-                                        <p class="card-text">
-                                            {todo.description}
-                                        </p>
-                                        <div class="row-icon">
-                                            <i
-                                                class="bi bi-pencil-square me-3"
-                                                on:click={() => getTodoById(todo.id)} />
-                                            <i
-                                                class="bi bi-trash-fill"
-                                                on:click={() => removeTodo(todo.id)} />
-                                        </div>
+        <!-- {#if isLoaded == true} -->
+        <div class="sub-list">
+            <div class="left">
+                <h2>Todo</h2>
+                {#each $Todos.filter((e) => e.status === 'todo') as todo (todo.id)}
+                    <div
+                        class="row"
+                        in:receive={{ key: todo.id }}
+                        out:send={{ key: todo.id }}
+                        animate:flip>
+                        <div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row-item">
+                                        <h5 class="card-title">{todo.title}</h5>
+                                        <p class="card-text">{todo.due_date}</p>
+                                    </div>
+                                    <p class="card-text">{todo.description}</p>
+                                    <div class="row-icon">
+                                        <i
+                                            class="bi bi-pencil-square me-3"
+                                            on:click={() => getTodoById(todo.id)} />
+                                        <i
+                                            class="bi bi-trash-fill"
+                                            on:click={() => removeTodo(todo.id)} />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    {/each}
-                </div>
-                <div class="center">
-                    <h2>Doing</h2>
-                    {#each arrTodos.filter((e) => e.status === 'doing') as todo (todo.id)}
-                        <div class="row">
-                            <div>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row-item">
-                                            <h5 class="card-title">
-                                                {todo.title}
-                                            </h5>
-                                            <p class="card-text">
-                                                {todo.due_date}
-                                            </p>
-                                        </div>
-                                        <p class="card-text">
-                                            {todo.description}
-                                        </p>
-                                        <div class="row-icon">
-                                            <i
-                                                class="bi bi-pencil-square me-3"
-                                                on:click={() => getTodoById(todo.id)} />
-                                            <i
-                                                class="bi bi-trash-fill"
-                                                on:click={() => removeTodo(todo.id)} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {/each}
-                </div>
-                <div class="right">
-                    <h2>Done</h2>
-                    {#each arrTodos.filter((e) => e.status === 'done') as todo (todo.id)}
-                        <div class="row">
-                            <div>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="row-item">
-                                            <h5 class="card-title">
-                                                {todo.title}
-                                            </h5>
-                                            <p class="card-text">
-                                                {todo.due_date}
-                                            </p>
-                                        </div>
-                                        <p class="card-text">
-                                            {todo.description}
-                                        </p>
-                                        <div class="row-icon">
-                                            <i
-                                                class="bi bi-pencil-square me-3"
-                                                on:click={() => getTodoById(todo.id)} />
-                                            <i
-                                                class="bi bi-trash-fill"
-                                                on:click={() => removeTodo(todo.id)} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    {/each}
-                </div>
+                    </div>
+                {/each}
             </div>
-        {:else}
-            <h2 id="loading">Loading...</h2>
-        {/if}
+            <div class="center">
+                <h2>Doing</h2>
+                {#each $Todos.filter((e) => e.status === 'doing') as todo (todo.id)}
+                    <div
+                        class="row"
+                        in:receive={{ key: todo.id }}
+                        out:send={{ key: todo.id }}
+                        animate:flip>
+                        <div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row-item">
+                                        <h5 class="card-title">{todo.title}</h5>
+                                        <p class="card-text">{todo.due_date}</p>
+                                    </div>
+                                    <p class="card-text">{todo.description}</p>
+                                    <div class="row-icon">
+                                        <i
+                                            class="bi bi-pencil-square me-3"
+                                            on:click={() => getTodoById(todo.id)} />
+                                        <i
+                                            class="bi bi-trash-fill"
+                                            on:click={() => removeTodo(todo.id)} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+            <div class="right">
+                <h2>Done</h2>
+                {#each $Todos.filter((e) => e.status === 'done') as todo (todo.id)}
+                    <div
+                        class="row"
+                        in:receive={{ key: todo.id }}
+                        out:send={{ key: todo.id }}
+                        animate:flip>
+                        <div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row-item">
+                                        <h5 class="card-title">{todo.title}</h5>
+                                        <p class="card-text">{todo.due_date}</p>
+                                    </div>
+                                    <p class="card-text">{todo.description}</p>
+                                    <div class="row-icon">
+                                        <i
+                                            class="bi bi-pencil-square me-3"
+                                            on:click={() => getTodoById(todo.id)} />
+                                        <i
+                                            class="bi bi-trash-fill"
+                                            on:click={() => removeTodo(todo.id)} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {/each}
+            </div>
+        </div>
+        <!-- {:else} -->
+        <!-- <h2 id="loading">Loading...</h2> -->
+        <!-- {/if} -->
     </div>
 </div>

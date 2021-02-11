@@ -1,6 +1,8 @@
 <script>
     import axios from "../config/axiosInstance";
     import Swal from "sweetalert2";
+    import { navigate } from "svelte-routing";
+    import { onMount, afterUpdate, beforeUpdate } from "svelte";
 
     let pageName = "Register Page";
     let user = {
@@ -10,9 +12,28 @@
         rePassword: "",
     };
     $: matchPassword = false;
+    
 
-    const handleRegister = () => {
-         axios({
+    afterUpdate(() => {
+       handlePassword()
+    });
+
+    const handlePassword = () => {
+        if (user.password.length !==0 && user.rePassword.length !== 0 && user.password === user.rePassword) {
+           matchPassword = true
+        } else {
+            matchPassword = false
+        }
+    }
+
+    const handleLogin  = () => {
+        navigate("/login");
+    }
+
+    const handleRegister = (e) => {
+        e.preventDefault();
+        if (user.name && user.email && user.password && user.rePassword && matchPassword === true) {
+              axios({
             method: "POST",
             url: "register",
             data: user,
@@ -22,6 +43,7 @@
                 title: "Congratss!",
                 text: "Register Success",
             });
+            navigate("/login", { replace: true });
         })
         .catch(err => {
             Swal.fire({
@@ -30,6 +52,8 @@
                 text: "Please input an empty field!",
             });
         })
+        } 
+       
     };
 </script>
 
@@ -58,7 +82,17 @@
         text-align: left;
         width: 60%;
     }
-    
+
+    .pass-notif {
+        margin-bottom: 2%;
+        color: red;
+    }
+
+    .login-btn {
+        overflow: hidden;
+        white-space: nowrap;
+        margin-bottom: 1%;
+    }
 </style>
 
 <main>
@@ -103,6 +137,10 @@
                     id="exampleInputPassword1"
                     bind:value={user.rePassword} />
             </div>
+            {#if matchPassword === false && user.rePassword} 
+            <h6 class="pass-notif">your password is not match!</h6>
+            {/if}
+            <h6 class="">Already have an account ? <button class="login-btn" on:click={handleLogin}>login</button> here</h6>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>

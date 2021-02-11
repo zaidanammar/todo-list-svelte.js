@@ -1,6 +1,7 @@
 <script>
     import axios from "../config/axiosInstance";
     import Swal from "sweetalert2";
+    import { navigate } from "svelte-routing";
 
     let pageName = "Login Page";
     let user = {
@@ -8,20 +9,27 @@
         password: "",
     };
 
-    const handleLogin = () => {
+    const handleRegister  = () => {
+        navigate("/");
+    }
+
+    const handleLogin = (e) => {
+        e.preventDefault()
         axios({
             method: "POST",
             url: "login",
             data: user,
-        }).then(({ result }) => {
-            localStorage.setItem({ access_token: result.access_token });
+        }).then(({ data }) => {
+            localStorage.setItem('access_token', data.access_token );
             Swal.fire({
                 icon: "success",
                 title: "Congratss!",
                 text: "Login Success",
             });
+            navigate("/home", { replace: true });
         })
         .catch(err => {
+            console.log(err)
             Swal.fire({
                 icon: "error",
                 title: "Sorry",
@@ -56,6 +64,13 @@
         text-align: left;
         width: 60%;
     }
+
+    .login-btn {
+        overflow: hidden;
+        white-space: nowrap;
+        margin-bottom: 1%;
+    }
+    
 </style>
 
 <main>
@@ -82,6 +97,7 @@
                     id="exampleInputPassword1"
                     bind:value={user.password} />
             </div>
+            <h6 class="">Already have an account ? <button class="login-btn" on:click={handleRegister}>Register</button> here</h6>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
