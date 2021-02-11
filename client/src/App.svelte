@@ -3,6 +3,7 @@
 	import RegisterPage from "./pages/RegisterPage.svelte";
 	import LoginPage from "./pages/LoginPage.svelte";
 	import HomePage from "./pages/HomePage.svelte";
+	import Navbar from './components/Navbar.svelte'
 	export let url = "";
 </script>
 
@@ -12,6 +13,7 @@
 		<Link to="login">Login</Link>
 		<Link to="/">Home</Link>
 	</nav>
+	<!-- <Navbar/> -->
 	<div>
 		<Route path="register" component={RegisterPage} />
 		<Route path="login">

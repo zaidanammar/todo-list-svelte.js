@@ -5,6 +5,7 @@
     import axios from "../config/axiosInstance";
     import { onMount, afterUpdate, beforeUpdate } from "svelte";
     import App from "../App.svelte";
+    import Swal from "sweetalert2";
 
     let showEdit = false;
     let showAdd = false;
@@ -18,21 +19,43 @@
     };
 
     let todoById = {};
+
     const submitTodo = (e) => {
-        e.preventDefault();
-        axios({
-            method: "POST",
-            url: "todos",
-            headers: {
-                access_token: localStorage.getItem("access_token"),
-            },
-            data: todo,
-        })
-            .then(({ data }) => {
-                console.log(data, "berhasil");
-            })
-            .catch((err) => console.log(err));
-        todo = {};
+        if (todo.title && todo.due_date && todo.status && todo.due_date) {
+            if (new Date(todo.due_date) < new Date()) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "The date was expired!",
+                });
+            } else {
+                e.preventDefault();
+                axios({
+                    method: "POST",
+                    url: "todos",
+                    headers: {
+                        access_token: localStorage.getItem("access_token"),
+                    },
+                    data: todo,
+                })
+                    .then(({ data }) => {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Congratss!",
+                            text: "Your todo has been saved",
+                        });
+                        showAdd = false;
+                    })
+                    .catch((err) => console.log(err));
+                todo = {};
+            }
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Please Input the empty field!",
+            });
+        }
     };
 
     const submitEditedTodo = (e) => {
@@ -46,7 +69,12 @@
             data: todoById,
         })
             .then(({ data }) => {
-                console.log(data, "berhasil");
+                Swal.fire({
+                    icon: "success",
+                    title: "Congratss!",
+                    text: "Your todo has been edited",
+                });
+                showEdit = false;
             })
             .catch((err) => console.log(err));
     };
@@ -70,27 +98,62 @@
         }
     });
 
-    beforeUpdate(() => {
-        console.log("before update");
-    });
+    // beforeUpdate(() => {
+    //     console.log("before update");
+    // });
 
-    afterUpdate(() => {
-        console.log("after update");
-    });
+    // afterUpdate(() => {
+    //     console.log("after update");
+    // });
 
     const removeTodo = (id) => {
-        axios({
-            method: "DELETE",
-            url: `todos/${id}`,
-            headers: {
-                access_token: localStorage.getItem("access_token"),
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger",
             },
-        })
-            .then(({ data }) => {
-                console.log(data);
+            buttonsStyling: false,
+        });
+
+        swalWithBootstrapButtons
+            .fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "No, cancel!",
+                reverseButtons: true,
             })
-            .catch((err) => {
-                console.log(err);
+            .then((result) => {
+                if (result.isConfirmed) {
+                    axios({
+                        method: "DELETE",
+                        url: `todos/${id}`,
+                        headers: {
+                            access_token: localStorage.getItem("access_token"),
+                        },
+                    })
+                        .then(({ data }) => {
+                            swalWithBootstrapButtons.fire(
+                                "Deleted!",
+                                "Your todo has been deleted.",
+                                "success"
+                            );
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    swalWithBootstrapButtons.fire(
+                        "Cancelled",
+                        "Your todo is safe :)",
+                        "error"
+                    );
+                }
             });
     };
 
@@ -120,11 +183,12 @@
 
 <style>
     .container {
-        background-color: aqua;
+        margin-bottom: 3%;
     }
 
     .list {
         background-color: blanchedalmond;
+        padding-bottom: 3%;
     }
 
     .sub-list {
@@ -138,128 +202,283 @@
 
     .left {
         background-color: chocolate;
+        width: 30%;
     }
 
     .center {
-        background-color: crimson;
+        width: 30%;
     }
 
     .right {
         background-color: darkseagreen;
+        width: 30%;
     }
 
     .add-todo {
         display: flex;
         justify-content: end;
-        margin-top: 2%;
+        margin: 3% 2% 2%;
+    }
+
+    i:hover {
+        cursor: pointer;
+    }
+
+    .row-item {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .row-icon {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+    }
+
+    .card {
+        margin: 3% 2% 0;
+    }
+    h2,
+    h1 {
+        text-align: center;
+        font-weight: 700;
+        margin: 1% 0;
     }
 </style>
 
-<div class="add-todo"><button on:click={handleShowAdd}>Add Todo</button></div>
-
-{#if showAdd}
-    <div class="container">
-        <h1>Add Todo</h1>
-        <form on:submit={submitTodo}>
-            <input
-                type="text"
-                name="todo"
-                placeholder="todo"
-                bind:value={todo.title} />
-            <input
-                type="text"
-                name="desc"
-                placeholder="description"
-                bind:value={todo.description} />
-            <input type="date" bind:value={todo.due_date} />
-            <select name="status" bind:value={todo.status}>
-                <optgroup label="select">
-                    <option value="todo">Todo</option>
-                    <option value="doing">Doing</option>
-                    <option value="done">Done</option>
-                </optgroup>
-            </select>
-            <button type="submit">Save</button>
+<div classname="container">
+    <div class="list">
+        <h1>Todo List</h1>
+        <div class="add-todo">
             <button
-                on:click={() => {
-                    showAdd = false;
-                }}>Cancel</button>
-        </form>
-    </div>
-{/if}
-
-{#if showEdit}
-    <div class="container">
-        <h1>Edit Todo</h1>
-        <form on:submit={submitEditedTodo}>
-            <input
-                type="text"
-                name="todo"
-                placeholder="todo"
-                bind:value={todoById.title} />
-            <input
-                type="text"
-                name="desc"
-                placeholder="description"
-                bind:value={todoById.description} />
-            <input type="date" bind:value={todoById.due_date} />
-            <select name="status" bind:value={todoById.status}>
-                <optgroup label="select">
-                    <option value="todo">Todo</option>
-                    <option value="doing">Doing</option>
-                    <option value="done">Done</option>
-                </optgroup>
-            </select>
-            <button type="submit">Save</button>
-            <button
-                on:click={() => {
-                    showEdit = false;
-                }}>Cancel</button>
-        </form>
-    </div>
-{/if}
-
-<div class="list">
-    <h1>Todo List</h1>
-    {#if isLoaded == true}
-        <div class="sub-list">
-            <div class="left">
-                <h2>Todo</h2>
-                {#each arrTodos.filter((e) => e.status === 'todo') as todo (todo.id)}
-                    <label>
-                        <!-- <input type=checkbox bind:checked={() => }> -->
-                        {todo.title}
-                        {todo.description}
-                        {todo.due_date}
-                        <button on:click={() => getTodoById(todo.id)}>/</button>
-                        <button on:click={() => removeTodo(todo.id)}>x</button>
-                    </label>
-                {/each}
-            </div>
-            <div class="center">
-                <h2>Doing</h2>
-                {#each arrTodos.filter((e) => e.status === 'doing') as todo (todo.id)}
-                    <label>{todo.title}
-                        {todo.description}
-                        {todo.due_date}
-                        <button on:click={() => getTodoById(todo.id)}>/</button>
-                        <button on:click={() => removeTodo(todo.id)}>x</button>
-                    </label>
-                {/each}
-            </div>
-            <div class="right">
-                <h2>Done</h2>
-                {#each arrTodos.filter((e) => e.status === 'done') as todo (todo.id)}
-                    <label>{todo.title}
-                        {todo.description}
-                        {todo.due_date}
-                        <button on:click={() => getTodoById(todo.id)}>/</button>
-                        <button on:click={() => removeTodo(todo.id)}>x</button>
-                    </label>
-                {/each}
-            </div>
+                type="button"
+                class="btn btn-primary"
+                on:click={handleShowAdd}>
+                Add Todo</button>
         </div>
-    {:else}
-        <h2 id="loading">Loading...</h2>
-    {/if}
+        {#if showAdd}
+            <div class="container">
+                <form on:submit={submitTodo}>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputEmail1"
+                            class="form-label">Title</label>
+                        <input
+                            type="text"
+                            bind:value={todo.title}
+                            class="form-control"
+                            id="exampleInputEmail1"
+                            aria-describedby="emailHelp" />
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputPassword1"
+                            class="form-label">Description</label>
+                        <input
+                            type="text"
+                            bind:value={todo.description}
+                            class="form-control"
+                            id="exampleInputPassword1" />
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputPassword1"
+                            class="form-label">Due date</label>
+                        <input
+                            type="date"
+                            bind:value={todo.due_date}
+                            class="form-control"
+                            id="exampleInputPassword1" />
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputPassword1"
+                            class="form-label">Status</label>
+                        <select
+                            class="form-select"
+                            bind:value={todo.status}
+                            aria-label="Default select example">
+                            <option selected>Open this select menu</option>
+                            <option value="todo">Todo</option>
+                            <option value="doing">Doing</option>
+                            <option value="done">Done</option>
+                        </select>
+                    </div>
+                    <button
+                        type="submit"
+                        class="btn btn-primary">Submit</button>
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                        on:click={() => {
+                            showAdd = false;
+                        }}>Cancel</button>
+                </form>
+            </div>
+        {/if}
+        {#if showEdit}
+            <div class="container">
+                <form on:submit={submitEditedTodo}>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputEmail1"
+                            class="form-label">Title</label>
+                        <input
+                            type="text"
+                            bind:value={todoById.title}
+                            class="form-control"
+                            id="exampleInputEmail1"
+                            aria-describedby="emailHelp" />
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputPassword1"
+                            class="form-label">Description</label>
+                        <input
+                            type="text"
+                            bind:value={todoById.description}
+                            class="form-control"
+                            id="exampleInputPassword1" />
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputPassword1"
+                            class="form-label">Due date</label>
+                        <input
+                            type="date"
+                            bind:value={todoById.due_date}
+                            class="form-control"
+                            id="exampleInputPassword1" />
+                    </div>
+                    <div class="mb-3">
+                        <label
+                            for="exampleInputPassword1"
+                            class="form-label">Status</label>
+                        <select
+                            class="form-select"
+                            bind:value={todoById.status}
+                            aria-label="Default select example">
+                            <option selected>Open this select menu</option>
+                            <option value="todo">Todo</option>
+                            <option value="doing">Doing</option>
+                            <option value="done">Done</option>
+                        </select>
+                    </div>
+                    <button
+                        type="submit"
+                        class="btn btn-primary">Submit</button>
+                    <button
+                        type="submit"
+                        class="btn btn-danger"
+                        on:click={() => {
+                            showEdit = false;
+                        }}>Cancel</button>
+                </form>
+            </div>
+        {/if}
+
+        {#if isLoaded == true}
+            <div class="sub-list">
+                <div class="left">
+                    <h2>Todo</h2>
+                    {#each arrTodos.filter((e) => e.status === 'todo') as todo (todo.id)}
+                        <div class="row">
+                            <div>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row-item">
+                                            <h5 class="card-title">
+                                                {todo.title}
+                                            </h5>
+                                            <p class="card-text">
+                                                {todo.due_date}
+                                            </p>
+                                        </div>
+                                        <p class="card-text">
+                                            {todo.description}
+                                        </p>
+                                        <div class="row-icon">
+                                            <i
+                                                class="bi bi-pencil-square me-3"
+                                                on:click={() => getTodoById(todo.id)} />
+                                            <i
+                                                class="bi bi-trash-fill"
+                                                on:click={() => removeTodo(todo.id)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+                <div class="center">
+                    <h2>Doing</h2>
+                    {#each arrTodos.filter((e) => e.status === 'doing') as todo (todo.id)}
+                        <div class="row">
+                            <div>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row-item">
+                                            <h5 class="card-title">
+                                                {todo.title}
+                                            </h5>
+                                            <p class="card-text">
+                                                {todo.due_date}
+                                            </p>
+                                        </div>
+                                        <p class="card-text">
+                                            {todo.description}
+                                        </p>
+                                        <div class="row-icon">
+                                            <i
+                                                class="bi bi-pencil-square me-3"
+                                                on:click={() => getTodoById(todo.id)} />
+                                            <i
+                                                class="bi bi-trash-fill"
+                                                on:click={() => removeTodo(todo.id)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+                <div class="right">
+                    <h2>Done</h2>
+                    {#each arrTodos.filter((e) => e.status === 'done') as todo (todo.id)}
+                        <div class="row">
+                            <div>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row-item">
+                                            <h5 class="card-title">
+                                                {todo.title}
+                                            </h5>
+                                            <p class="card-text">
+                                                {todo.due_date}
+                                            </p>
+                                        </div>
+                                        <p class="card-text">
+                                            {todo.description}
+                                        </p>
+                                        <div class="row-icon">
+                                            <i
+                                                class="bi bi-pencil-square me-3"
+                                                on:click={() => getTodoById(todo.id)} />
+                                            <i
+                                                class="bi bi-trash-fill"
+                                                on:click={() => removeTodo(todo.id)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {:else}
+            <h2 id="loading">Loading...</h2>
+        {/if}
+    </div>
 </div>

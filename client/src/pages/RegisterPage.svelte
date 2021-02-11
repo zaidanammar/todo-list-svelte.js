@@ -1,4 +1,7 @@
 <script>
+    import axios from "../config/axiosInstance";
+    import Swal from "sweetalert2";
+
     let pageName = "Register Page";
     let user = {
         name: "",
@@ -6,11 +9,28 @@
         password: "",
         rePassword: "",
     };
-    $: matchPassword = false
+    $: matchPassword = false;
 
     const handleRegister = () => {
-        console.log(user)
-    }
+         axios({
+            method: "POST",
+            url: "register",
+            data: user,
+        }).then(({ result }) => {
+            Swal.fire({
+                icon: "success",
+                title: "Congratss!",
+                text: "Register Success",
+            });
+        })
+        .catch(err => {
+            Swal.fire({
+                icon: "error",
+                title: "Sorry",
+                text: "Please input an empty field!",
+            });
+        })
+    };
 </script>
 
 <style>
@@ -22,10 +42,10 @@
     }
 
     h1 {
-        color: #ff3e00;
+        color: #b40606;
         text-transform: uppercase;
         font-size: 4em;
-        font-weight: 100;
+        font-weight: 400;
     }
 
     @media (min-width: 640px) {
@@ -34,32 +54,56 @@
         }
     }
 
-    .form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        /* background-color: darkslategray; */
-    }
-
-    .input {
+    .container {
+        text-align: left;
         width: 60%;
     }
+    
 </style>
 
 <main>
     <h1>{pageName}!</h1>
-    <p>Welcome this is my <b>{pageName}</b></p>
 
-    <form on:submit={handleRegister}>
-        <div class='form'>
-            <input type="text" class="input" placeholder="Input your name here!" bind:value={user.name}/>
-            <input type="email" class="input" placeholder="Input your email here!" bind:value={user.email}/>
-            <input type="password" class="input" placeholder="Input your password here!" bind:value={user.password} />
-            <input type="password" class="input" placeholder="Re-enter your password here!" bind:value={user.rePassword} />
-            {#if matchPassword && user.password.length !== 0} 
-            <h6>Your password is not match!</h6>
-            {/if}
-            <button type="submit">Register</button>
-        </div>
-    </form>
+    <div class="container">
+        <form on:submit={handleRegister}>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Name</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="exampleInputEmail1"
+                    aria-describedby="emailHelp"
+                    bind:value={user.name} />
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Email address</label>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="exampleInputEmail1"
+                    aria-describedby="emailHelp"
+                    bind:value={user.email} />
+            </div>
+            <div class="mb-3">
+                <label
+                    for="exampleInputPassword1"
+                    class="form-label">Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="exampleInputPassword1"
+                    bind:value={user.password} />
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Re-enter
+                    Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="exampleInputPassword1"
+                    bind:value={user.rePassword} />
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
 </main>
