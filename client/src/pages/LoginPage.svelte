@@ -1,7 +1,7 @@
 <script>
     import axios from "../config/axiosInstance";
     import Swal from "sweetalert2";
-    import { navigate } from "svelte-routing";
+    import { navigate, Link, Router } from "svelte-routing";
 
     // let bg = "../../public/img/8401.jpg";
 
@@ -12,7 +12,7 @@
     };
 
     const handleRegister = () => {
-        navigate("/register");
+        navigate("/register", { replace: true });
     };
 
     const handleLogin = (e) => {
@@ -69,10 +69,6 @@
         width: 50%;
     }
 
-    h6:hover {
-        cursor: pointer;
-    }
-
     :global(body.dark-mode) h1 {
         color: white;
     }
@@ -115,9 +111,9 @@
                     id="exampleInputPassword1"
                     bind:value={user.password} />
             </div>
-            <h6 class="" on:click={handleRegister}>
-                Already have an account ? Register here
-            </h6>
+            <Router>
+                <Link to="/register">Register here</Link>
+            </Router>
             <button type="submit" class="btn btn-primary mt-2">Submit</button>
         </form>
     </div>
