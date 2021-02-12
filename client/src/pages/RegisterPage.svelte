@@ -66,9 +66,11 @@
     }
 
     h1 {
-        color: #1d3040;
-        font-size: 4em;
+        text-align: center;
         font-weight: 600;
+        font-size: 4em;
+        margin: 1% 0;
+        text-shadow: 2px 2px 2px rgb(145, 143, 143);
     }
 
     @media (min-width: 640px) {
@@ -90,6 +92,11 @@
     h6:hover{
         cursor: pointer;
     }
+
+    :global(body.dark-mode) h1 {
+        color: white;
+    }
+    
 </style>
 
 <main>

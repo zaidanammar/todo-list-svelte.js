@@ -1,10 +1,11 @@
 <script>
-	import { Router, Link, Route } from "svelte-routing";
+	// import { Router, Link, Route } from "svelte-routing";
 	import RegisterPage from "./pages/RegisterPage.svelte";
 	import LoginPage from "./pages/LoginPage.svelte";
 	import HomePage from "./pages/HomePage.svelte";
-	import Navbar from "./components/Navbar.svelte";
-	export let url = "";
+	import { Router } from 'svelte-router-spa'
+	import { routes } from './routes'
+	// export let url = "";
 </script>
 
 <style>
@@ -19,12 +20,15 @@
 	}
 </style>
 
-<Router {url}>
+
+<Router {routes}/>
+
+<!-- <Router {url}>
 	<div class="body">
-		<Route path="/register" component={RegisterPage} />
+		<Route path="/" component={RegisterPage} />
 		<Route path="/login">
 			<LoginPage />
 		</Route>
-		<Route path="/" component={HomePage} />
+		<Route path="/home" component={HomePage} />
 	</div>
-</Router>
+</Router> -->

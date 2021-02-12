@@ -26,7 +26,6 @@
     let Todos = writable([]);
     let showEdit = false;
     let showAdd = false;
-    // let isLoaded = false;
     let todo = {
         title: "",
         description: "",
@@ -55,7 +54,6 @@
                     data: todo,
                 })
                     .then(({ data }) => {
-                        // isLoaded = !isLoaded;
                         fetchData();
                         Swal.fire({
                             icon: "success",
@@ -87,7 +85,6 @@
             data: todoById,
         })
             .then(({ data }) => {
-                // isLoaded = !isLoaded;
                 fetchData();
                 showEdit = false;
             })
@@ -103,9 +100,7 @@
             },
         })
             .then(({ data }) => {
-                // isLoaded = !isLoaded;
                 Todos.set(data);
-                console.log(Todos, "<<<<");
             })
             .catch((err) => console.log(err));
     };
@@ -143,7 +138,6 @@
                         },
                     })
                         .then(({ data }) => {
-                            // isLoaded = !isLoaded;
                             fetchData();
                             swalWithBootstrapButtons.fire(
                                 "Deleted!",
@@ -192,6 +186,11 @@
         margin-bottom: 3%;
     }
 
+    .list {
+        margin-left: 1%;
+        margin-right: 1%;
+    }
+
     .sub-list {
         display: flex;
         justify-content: space-around;
@@ -203,7 +202,7 @@
         min-height: 500px;
         border-radius: 3%;
         padding: 0 0.5% 2%;
-        margin-bottom: 2%;
+        margin-bottom: 1.5%;
     }
 
     .center {
@@ -212,7 +211,7 @@
         min-height: 500px;
         border-radius: 3%;
         padding: 0 0.5% 2%;
-        margin-bottom: 2%;
+        margin-bottom: 1.5%;
     }
 
     .right {
@@ -221,7 +220,7 @@
         min-height: 500px;
         border-radius: 3%;
         padding: 0 0.5% 2%;
-        margin-bottom: 2%;
+        margin-bottom: 1.5%;
     }
 
     .add-todo {
@@ -411,11 +410,10 @@
             </div>
         {/if}
 
-        <!-- {#if isLoaded == true} -->
         <div class="sub-list">
             <div class="left">
                 <h2>Todo</h2>
-                {#each $Todos.filter((e) => e.status === 'todo') as todo (todo.id)}
+                {#each $Todos.filter((e) => e.status === 'todo').sort((a,b) => new Date(a.due_date) - new Date(b.due_date)) as todo (todo.id)}
                     <div
                         class="row"
                         in:receive={{ key: todo.id }}
@@ -445,7 +443,7 @@
             </div>
             <div class="center">
                 <h2>Doing</h2>
-                {#each $Todos.filter((e) => e.status === 'doing') as todo (todo.id)}
+                {#each $Todos.filter((e) => e.status === 'doing').sort((a,b) => new Date(a.due_date) - new Date(b.due_date)) as todo (todo.id)}
                     <div
                         class="row"
                         in:receive={{ key: todo.id }}
@@ -475,7 +473,7 @@
             </div>
             <div class="right">
                 <h2>Done</h2>
-                {#each $Todos.filter((e) => e.status === 'done') as todo (todo.id)}
+                {#each $Todos.filter((e) => e.status === 'done').sort((a,b) => new Date(a.due_date) - new Date(b.due_date)) as todo (todo.id)}
                     <div
                         class="row"
                         in:receive={{ key: todo.id }}
@@ -504,8 +502,5 @@
                 {/each}
             </div>
         </div>
-        <!-- {:else} -->
-        <!-- <h2 id="loading">Loading...</h2> -->
-        <!-- {/if} -->
     </div>
 </div>
