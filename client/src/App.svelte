@@ -3,7 +3,7 @@
 	import RegisterPage from "./pages/RegisterPage.svelte";
 	import LoginPage from "./pages/LoginPage.svelte";
 	import HomePage from "./pages/HomePage.svelte";
-	import { Router } from 'svelte-router-spa'
+	import { Router, Route } from 'svelte-router-spa';
 	import { routes } from './routes'
 	// export let url = "";
 </script>
@@ -21,7 +21,7 @@
 </style>
 
 
-<Router {routes}/>
+<Router {routes} />
 
 <!-- <Router {url}>
 	<div class="body">
