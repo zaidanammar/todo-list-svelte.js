@@ -1,9 +1,7 @@
 <script>
     import axios from "../config/axiosInstance";
     import Swal from "sweetalert2";
-    import { navigate } from "svelte-routing";
-
-    // let bg = "../../public/img/8401.jpg";
+    import { navigateTo } from "svelte-router-spa";
 
     let pageName = "Login";
     let user = {
@@ -12,7 +10,7 @@
     };
 
     const handleRegister = () => {
-        navigate("/register");
+        navigateTo("/register");
     };
 
     const handleLogin = (e) => {
@@ -29,7 +27,7 @@
                     title: "Congratss!",
                     text: "Login Success",
                 });
-                navigate("/", { replace: true });
+                navigateTo("/", { replace: true });
             })
             .catch((err) => {
                 console.log(err);
@@ -54,7 +52,6 @@
         text-align: center;
         font-weight: 600;
         font-size: 4em;
-        margin: 1% 0;
         text-shadow: 2px 2px 2px rgb(145, 143, 143);
     }
 
@@ -67,6 +64,11 @@
     .container {
         text-align: left;
         width: 50%;
+        background-color: white;
+        padding: 2%;
+        margin-top: 2%;
+        border-radius: 3%;
+        box-shadow: 5px 5px 5px rgb(145, 143, 143);
     }
 
     h6:hover {
@@ -78,47 +80,52 @@
     }
 
     img {
-        width: 300px;
+        width: 50%;
     }
 
     .banner-container {
-        /* background-image: url("/images/hero-banner.png");
-        background-repeat: no-repeat;
-        background-size: 100% auto; */
-        /* width: 100%; */
-        height: 50%;
-        /* background-color: aqua; */
+        display: flex;
+        justify-content: center;
+        padding: 0 4% 4%;
     }
+
 </style>
 
 <main>
     <h1>{pageName}</h1>
-    <div class="banner-container"><img src="https://media.discordapp.net/attachments/760167928065818686/809649616650764288/8401.jpg?width=1064&height=676" alt="Girl in a jacket" /></div>
-    <div class="container">
-        <form on:submit={handleLogin}>
-            <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Email address</label>
-                <input
-                    type="email"
-                    class="form-control"
-                    id="exampleInputEmail1"
-                    aria-describedby="emailHelp"
-                    bind:value={user.email} />
+        <div class="container">
+            <div class="banner-container">
+                <img
+                    src="https://cdn.discordapp.com/attachments/760167928065818686/809692266385113128/bg-todo.png"
+                    alt="Girl in a jacket" />
             </div>
-            <div class="mb-3">
-                <label
-                    for="exampleInputPassword1"
-                    class="form-label">Password</label>
-                <input
-                    type="password"
-                    class="form-control"
-                    id="exampleInputPassword1"
-                    bind:value={user.password} />
-            </div>
-            <h6 class="" on:click={handleRegister}>
-                Already have an account ? Register here
-            </h6>
-            <button type="submit" class="btn btn-primary mt-2">Submit</button>
-        </form>
-    </div>
+            <form on:submit={handleLogin}>
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Email
+                        address</label>
+                    <input
+                        type="email"
+                        class="form-control"
+                        id="exampleInputEmail1"
+                        aria-describedby="emailHelp"
+                        bind:value={user.email} />
+                </div>
+                <div class="mb-3">
+                    <label
+                        for="exampleInputPassword1"
+                        class="form-label">Password</label>
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="exampleInputPassword1"
+                        bind:value={user.password} />
+                </div>
+                <h6 class="" on:click={handleRegister}>
+                    Dont have an account ? Register here
+                </h6>
+                <button
+                    type="submit"
+                    class="btn btn-primary mt-2">Submit</button>
+            </form>
+        </div>
 </main>

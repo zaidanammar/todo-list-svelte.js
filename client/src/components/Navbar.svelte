@@ -1,11 +1,11 @@
 <script>
-  import { navigate } from "svelte-routing";
+  import { navigateTo } from "svelte-router-spa";
 
   let darkMode = false;
 
   const logout = () => {
     localStorage.clear();
-    navigate("/login", { replace: true });
+    navigateTo("/login", { replace: true });
   };
 
   const handleDarkMode = () => {

@@ -1,8 +1,8 @@
 <script>
     import axios from "../config/axiosInstance";
     import Swal from "sweetalert2";
-    import { navigate } from "svelte-routing";
-    import { onMount, afterUpdate, beforeUpdate } from "svelte";
+    import { navigateTo } from "svelte-router-spa";
+    import { afterUpdate } from "svelte";
 
     let pageName = "Register";
     let user = {
@@ -27,7 +27,7 @@
     }
 
     const handleLogin  = () => {
-        navigate("/login");
+        navigateTo("/login");
     }
 
     const handleRegister = (e) => {
@@ -43,7 +43,7 @@
                 title: "Congratss!",
                 text: "Register Success",
             });
-            navigate("/login", { replace: true });
+            navigateTo("/login", { replace: true });
         })
         .catch(err => {
             Swal.fire({
@@ -69,7 +69,6 @@
         text-align: center;
         font-weight: 600;
         font-size: 4em;
-        margin: 1% 0;
         text-shadow: 2px 2px 2px rgb(145, 143, 143);
     }
 
@@ -82,6 +81,21 @@
     .container {
         text-align: left;
         width: 50%;
+        background-color: white;
+        padding: 2%;
+        margin-top: 2%;
+        border-radius: 3%;
+        box-shadow: 5px 5px 5px rgb(145, 143, 143);
+    }
+
+    img {
+        width: 50%;
+    }
+
+    .banner-container {
+        display: flex;
+        justify-content: center;
+        padding: 0 4% 4%;
     }
 
     .pass-notif {
@@ -96,13 +110,18 @@
     :global(body.dark-mode) h1 {
         color: white;
     }
-    
+
 </style>
 
 <main>
     <h1>{pageName}</h1>
 
     <div class="container">
+        <div class="banner-container">
+            <img
+                src="https://cdn.discordapp.com/attachments/760167928065818686/809692266385113128/bg-todo.png"
+                alt="Girl in a jacket" />
+        </div>
         <form on:submit={handleRegister}>
             <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Name</label>
