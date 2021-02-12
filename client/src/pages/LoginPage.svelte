@@ -24,8 +24,8 @@
                 localStorage.setItem("access_token", data.access_token);
                 Swal.fire({
                     icon: "success",
-                    title: "Congratss!",
-                    text: "Login Success",
+                    title: "Login Success",
+                    text: `Welcome ${data.name}`,
                 });
                 navigateTo("/", { replace: true });
             })
