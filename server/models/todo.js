@@ -48,8 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notEmpty: {
           msg: "Date is required!"
-        },
-        isAfter: new Date().toString()
+        }
       }
     }
   }, {
